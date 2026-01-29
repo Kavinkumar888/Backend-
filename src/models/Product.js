@@ -1,26 +1,27 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const specificationSchema = new mongoose.Schema({
-  composition: String,
-  gsm: String,
-  width: String,
-  count: String,
-  construction: String,
-  weave: String,
-  finish: String,
-});
-
-const productSchema = new mongoose.Schema(
+const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    price: { type: Number, default: 0 },
-    mainCategory: { type: String, required: true },
-    subCategory: { type: String, required: true },
+    price: Number,
+
+    mainCategory: String,
+    subCategory: String,
     nestedCategory: String,
-    specifications: specificationSchema,
-    image: String,
+
+    specifications: {
+      composition: String,
+      gsm: String,
+      width: String,
+      count: String,
+      construction: String,
+      weave: String,
+      finish: String,
+    },
+
+    image: { type: String, default: "" },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product", ProductSchema);

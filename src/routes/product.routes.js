@@ -1,18 +1,70 @@
-import express from "express";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "../controllers/product.controller.js";
+const Product = require("../models/Product");
 
-import { upload } from "../middleware/upload.js";
+/* GET ALL PRODUCTS */
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    console.log("PRODUCT COUNT:", products.length);
+    res.json(products); // ⚠️ ARRAY ONLY (UI expects this)
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-const router = express.Router();
+/* CREATE PRODUCT */
+exports.createProduct = async (req, res) => {
+  try {
+    const specs = req.body.specifications
+      ? JSON.parse(req.body.specifications)
+      : {};
 
-router.get("/", getProducts);
-router.post("/", upload.single("image"), createProduct);
-router.put("/:id", upload.single("image"), updateProduct);
-router.delete("/:id", deleteProduct);
+    const product = new Product({
+      name: req.body.name,
+      price: req.body.price,
+      mainCategory: req.body.mainCategory,
+      subCategory: req.body.subCategory,
+      nestedCategory: req.body.nestedCategory,
+      specifications: specs,
+      image: req.file ? `/uploads/${req.file.filename}` : "",
+    });
 
-export default router;
+    await product.save();
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+};
+
+/* UPDATE PRODUCT */
+exports.updateProduct = async (req, res) => {
+  try {
+    const specs = req.body.specifications
+      ? JSON.parse(req.body.specifications)
+      : {};
+
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...req.body,
+        specifications: specs,
+        ...(req.file && { image: `/uploads/${req.file.filename}` }),
+      },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+/* DELETE PRODUCT */
+exports.deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -12,7 +12,11 @@ const app = express();
 connectDB();
 
 /* MIDDLEWARE */
-app.use(cors());
+app.use(cors({
+  origin: ["https://sssventures.in", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -21,6 +25,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* ROUTES */
 app.use("/api/products", productRoutes);
+
+/* TEST */
+app.get("/", (req, res) => {
+  res.send("Backend running 🚀");
+});
 
 /* START */
 const PORT = process.env.PORT || 5000;

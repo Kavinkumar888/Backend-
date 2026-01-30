@@ -1,70 +1,20 @@
-const Product = require("../models/Product");
+const express = require("express");
+const router = express.Router();
 
-/* GET ALL PRODUCTS */
-exports.getProducts = async (req, res) => {
-  try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    console.log("PRODUCT COUNT:", products.length);
-    res.json(products); // ⚠️ ARRAY ONLY (UI expects this)
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+const upload = require("../middleware/upload");
+const controller = require("../controllers/product.controller");
 
-/* CREATE PRODUCT */
-exports.createProduct = async (req, res) => {
-  try {
-    const specs = req.body.specifications
-      ? JSON.parse(req.body.specifications)
-      : {};
+// GET ALL PRODUCTS
+router.get("/", controller.getProducts);
 
-    const product = new Product({
-      name: req.body.name,
-      price: req.body.price,
-      mainCategory: req.body.mainCategory,
-      subCategory: req.body.subCategory,
-      nestedCategory: req.body.nestedCategory,
-      specifications: specs,
-      image: req.file ? `/uploads/${req.file.filename}` : "",
-    });
+// CREATE PRODUCT
+router.post("/", upload.single("image"), controller.createProduct);
 
-    await product.save();
-    res.json(product);
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: err.message });
-  }
-};
+// UPDATE PRODUCT
+router.put("/:id", upload.single("image"), controller.updateProduct);
 
-/* UPDATE PRODUCT */
-exports.updateProduct = async (req, res) => {
-  try {
-    const specs = req.body.specifications
-      ? JSON.parse(req.body.specifications)
-      : {};
+// DELETE PRODUCT
+router.delete("/:id", controller.deleteProduct);
 
-    const updated = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...req.body,
-        specifications: specs,
-        ...(req.file && { image: `/uploads/${req.file.filename}` }),
-      },
-      { new: true }
-    );
-
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-/* DELETE PRODUCT */
-exports.deleteProduct = async (req, res) => {
-  try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+// 🔴 THIS LINE MUST BE LAST
+module.exports = router;

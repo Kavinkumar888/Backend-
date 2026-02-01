@@ -6,11 +6,10 @@ import productRoutes from "./routes/product.routes.js";
 
 const app = express();
 
-/* ---------------- FIX FOR __dirname IN ES MODULE ---------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ---------------- CORS ---------------- */
+/* CORS */
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -19,7 +18,6 @@ app.use(
         "https://www.sssventures.in",
         "http://localhost:3000",
       ];
-
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
@@ -30,21 +28,21 @@ app.use(
   })
 );
 
-/* ---------------- BODY PARSER ---------------- */
-app.use(express.json());
-
-/* ---------------- STATIC UPLOADS (VERY IMPORTANT FIX) ---------------- */
+/* STATIC UPLOADS */
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "../uploads"))
 );
 
-/* ---------------- TEST ROUTE ---------------- */
+/* ROUTES FIRST (multer must read body first) */
+app.use("/api/products", productRoutes);
+
+/* JSON PARSER AFTER ROUTES */
+app.use(express.json());
+
+/* TEST */
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
-
-/* ---------------- ROUTES ---------------- */
-app.use("/api/products", productRoutes);
 
 export default app;

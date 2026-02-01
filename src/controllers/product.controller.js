@@ -1,68 +1,79 @@
-const Product = require("../models/Product");
+const Product = require("../models/product.model");
 
-/* GET ALL PRODUCTS */
+/* ---------------- GET ALL PRODUCTS ---------------- */
 exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products); // ⚠️ ARRAY ONLY
+    res.json(products);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-/* CREATE PRODUCT */
+/* ---------------- CREATE PRODUCT ---------------- */
 exports.createProduct = async (req, res) => {
   try {
-    const specs = req.body.specifications
-      ? JSON.parse(req.body.specifications)
-      : {};
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
-    const product = new Product({
+    const product = await Product.create({
       name: req.body.name,
       price: req.body.price,
       mainCategory: req.body.mainCategory,
       subCategory: req.body.subCategory,
       nestedCategory: req.body.nestedCategory,
-      specifications: specs,
-      image: req.file ? `/uploads/${req.file.filename}` : "",
+
+      // 🔥 VERY IMPORTANT FIX
+      specifications: JSON.parse(req.body.specifications || "{}"),
+
+      image: imagePath,
     });
 
-    await product.save();
-    res.json(product);
+    res.status(201).json(product);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error("Create error:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
-/* UPDATE PRODUCT */
+/* ---------------- UPDATE PRODUCT ---------------- */
 exports.updateProduct = async (req, res) => {
   try {
-    const specs = req.body.specifications
-      ? JSON.parse(req.body.specifications)
-      : {};
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const updateData = {
+      name: req.body.name,
+      price: req.body.price,
+      mainCategory: req.body.mainCategory,
+      subCategory: req.body.subCategory,
+      nestedCategory: req.body.nestedCategory,
+
+      // 🔥 VERY IMPORTANT FIX
+      specifications: JSON.parse(req.body.specifications || "{}"),
+    };
+
+    if (imagePath) {
+      updateData.image = imagePath;
+    }
 
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
-      {
-        ...req.body,
-        specifications: specs,
-        ...(req.file && { image: `/uploads/${req.file.filename}` }),
-      },
+      updateData,
       { new: true }
     );
 
     res.json(updated);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error("Update error:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
-/* DELETE PRODUCT */
+/* ---------------- DELETE PRODUCT ---------------- */
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+    res.json({ message: "Product deleted" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
   }
 };

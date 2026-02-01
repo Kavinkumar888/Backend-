@@ -15,16 +15,15 @@ exports.createProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
+    const specs = JSON.parse(req.body.specifications || "{}");
+
     const product = await Product.create({
       name: req.body.name,
       price: req.body.price,
       mainCategory: req.body.mainCategory,
       subCategory: req.body.subCategory,
       nestedCategory: req.body.nestedCategory,
-
-      // ✅ DO NOT PARSE
-      specifications: req.body.specifications,
-
+      specifications: specs,
       image: imagePath,
     });
 
@@ -40,15 +39,15 @@ exports.updateProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
+    const specs = JSON.parse(req.body.specifications || "{}");
+
     const updateData = {
       name: req.body.name,
       price: req.body.price,
       mainCategory: req.body.mainCategory,
       subCategory: req.body.subCategory,
       nestedCategory: req.body.nestedCategory,
-
-      // ✅ DO NOT PARSE
-      specifications: req.body.specifications,
+      specifications: specs,
     };
 
     if (imagePath) {

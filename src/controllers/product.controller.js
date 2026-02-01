@@ -33,6 +33,8 @@ exports.createProduct = async (req, res) => {
     console.error("Create error:", err);
     res.status(500).json({ error: err.message });
   }
+  console.log("REQ BODY SPEC:", req.body.specifications);
+
 };
 
 /* ---------------- UPDATE PRODUCT ---------------- */

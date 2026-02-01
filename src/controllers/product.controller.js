@@ -13,6 +13,8 @@ exports.getProducts = async (req, res) => {
 /* ---------------- CREATE PRODUCT ---------------- */
 exports.createProduct = async (req, res) => {
   try {
+    console.log("REQ BODY SPEC:", req.body.specifications);
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
     const product = await Product.create({
@@ -21,10 +23,7 @@ exports.createProduct = async (req, res) => {
       mainCategory: req.body.mainCategory,
       subCategory: req.body.subCategory,
       nestedCategory: req.body.nestedCategory,
-
-      // 🔥 VERY IMPORTANT FIX
       specifications: JSON.parse(req.body.specifications || "{}"),
-
       image: imagePath,
     });
 
@@ -33,9 +32,8 @@ exports.createProduct = async (req, res) => {
     console.error("Create error:", err);
     res.status(500).json({ error: err.message });
   }
-  console.log("REQ BODY SPEC:", req.body.specifications);
-
 };
+
 
 /* ---------------- UPDATE PRODUCT ---------------- */
 exports.updateProduct = async (req, res) => {

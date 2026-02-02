@@ -4,21 +4,21 @@ const Product = require("../models/product.model");
 exports.getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 25;
+    const limit = 20;
 
     const products = await Product.find({})
-      .select("name price image mainCategory subCategory nestedCategory")
+      .select("name price image mainCategory subCategory") // ⚠️ remove heavy fields
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
 
-    res.set("Cache-Control", "public, max-age=60");
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 /* -------- GET SINGLE PRODUCT (HEAVY) -------- */
 exports.getProductById = async (req, res) => {

@@ -24,4 +24,8 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// 🔥 ADD THESE 2 LINES EXACTLY HERE
+ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ mainCategory: 1 });
+
 module.exports = mongoose.model("Product", ProductSchema);

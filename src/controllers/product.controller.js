@@ -1,6 +1,6 @@
 const Product = require("../models/product.model");
 
-/* ---------------- GET ALL PRODUCTS ---------------- */
+/* -------- GET PRODUCTS (FAST LIST) -------- */
 exports.getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -13,12 +13,14 @@ exports.getProducts = async (req, res) => {
       .limit(limit)
       .lean();
 
+    res.set("Cache-Control", "public, max-age=60");
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-/* ---------------- GET SINGLE PRODUCT (HEAVY) ---------------- */
+
+/* -------- GET SINGLE PRODUCT (HEAVY) -------- */
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).lean();
@@ -28,12 +30,10 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-
-/* ---------------- CREATE PRODUCT ---------------- */
+/* -------- CREATE PRODUCT -------- */
 exports.createProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
-
     const specs = JSON.parse(req.body.specifications || "{}");
 
     const product = await Product.create({
@@ -48,16 +48,14 @@ exports.createProduct = async (req, res) => {
 
     res.status(201).json(product);
   } catch (err) {
-    console.error("Create error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-/* ---------------- UPDATE PRODUCT ---------------- */
+/* -------- UPDATE PRODUCT -------- */
 exports.updateProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-
     const specs = JSON.parse(req.body.specifications || "{}");
 
     const updateData = {
@@ -69,9 +67,7 @@ exports.updateProduct = async (req, res) => {
       specifications: specs,
     };
 
-    if (imagePath) {
-      updateData.image = imagePath;
-    }
+    if (imagePath) updateData.image = imagePath;
 
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
@@ -81,12 +77,11 @@ exports.updateProduct = async (req, res) => {
 
     res.json(updated);
   } catch (err) {
-    console.error("Update error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-/* ---------------- DELETE PRODUCT ---------------- */
+/* -------- DELETE PRODUCT -------- */
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);

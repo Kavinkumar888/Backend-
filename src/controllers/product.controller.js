@@ -3,15 +3,18 @@ const Product = require("../models/product.model");
 /* -------- GET PRODUCTS (FAST LIST) -------- */
 exports.getProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 20;
-
-    const products = await Product.find({})
-      .select("name price image mainCategory subCategory") // ⚠️ remove heavy fields
+    const products = await Product.find({}, {
+      name: 1,
+      price: 1,
+      image: 1,
+      mainCategory: 1,
+      subCategory: 1,
+      nestedCategory: 1,
+    })
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+      .limit(25)
+      .lean()
+      .hint({ createdAt: -1 });   // 🔥 force index use
 
     res.json(products);
   } catch (err) {

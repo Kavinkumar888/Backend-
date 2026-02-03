@@ -2,14 +2,22 @@ const Product = require("../models/product.model");
 
 /* -------- GET PRODUCTS (FAST LIST) -------- */
 /* -------- GET PRODUCTS (REAL PAGINATION) -------- */
+
+
+
+/* -------- GET SINGLE PRODUCT (HEAVY) -------- */
 exports.getProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 25;
-    const skip = (page - 1) * limit;
+    const lastId = req.query.lastId;
+
+    let query = {};
+    if (lastId) {
+      query._id = { $lt: lastId }; // cursor
+    }
 
     const products = await Product.find(
-      {},
+      query,
       {
         name: 1,
         price: 1,
@@ -19,25 +27,11 @@ exports.getProducts = async (req, res) => {
         nestedCategory: 1,
       }
     )
-      .sort({ createdAt: -1 })
-      .skip(skip)          // 🔥 pagination
-      .limit(limit)        // 🔥 pagination
-      .lean()
-      .hint({ createdAt: -1 });
+      .sort({ _id: -1 })
+      .limit(limit)
+      .lean();
 
     res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-/* -------- GET SINGLE PRODUCT (HEAVY) -------- */
-exports.getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id).lean();
-    res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

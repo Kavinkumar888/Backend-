@@ -5,15 +5,14 @@ const Product = require("../models/product.model");
 
 
 
-/* -------- GET SINGLE PRODUCT (HEAVY) -------- */
 exports.getProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 25;
-    const lastId = req.query.lastId;
+    const lastCreatedAt = req.query.lastCreatedAt;
 
     let query = {};
-    if (lastId) {
-      query._id = { $lt: lastId }; // cursor
+    if (lastCreatedAt) {
+      query.createdAt = { $lt: new Date(lastCreatedAt) };
     }
 
     const products = await Product.find(
@@ -27,8 +26,9 @@ exports.getProducts = async (req, res) => {
         nestedCategory: 1,
       }
     )
-      .sort({ _id: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
+      .hint({ createdAt: -1 })
       .lean();
 
     res.json(products);
@@ -36,6 +36,7 @@ exports.getProducts = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 /* -------- CREATE PRODUCT -------- */
 exports.createProduct = async (req, res) => {

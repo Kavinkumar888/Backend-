@@ -1,4 +1,4 @@
-const Product = require("../models/product.model");
+const Product = require("../../models/product.model");
 
 /* -------- GET PRODUCTS (FAST LIST) -------- */
 /* -------- GET PRODUCTS (REAL PAGINATION) -------- */

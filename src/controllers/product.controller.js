@@ -88,6 +88,15 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+exports.getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).lean();
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 /* -------- DELETE PRODUCT -------- */
 exports.deleteProduct = async (req, res) => {

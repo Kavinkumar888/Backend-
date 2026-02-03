@@ -1,26 +1,36 @@
 const Product = require("../models/product.model");
 
 /* -------- GET PRODUCTS (FAST LIST) -------- */
+/* -------- GET PRODUCTS (REAL PAGINATION) -------- */
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find({}, {
-      name: 1,
-      price: 1,
-      image: 1,
-      mainCategory: 1,
-      subCategory: 1,
-      nestedCategory: 1,
-    })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 25;
+    const skip = (page - 1) * limit;
+
+    const products = await Product.find(
+      {},
+      {
+        name: 1,
+        price: 1,
+        image: 1,
+        mainCategory: 1,
+        subCategory: 1,
+        nestedCategory: 1,
+      }
+    )
       .sort({ createdAt: -1 })
-      .limit(25)
+      .skip(skip)          // 🔥 pagination
+      .limit(limit)        // 🔥 pagination
       .lean()
-      .hint({ createdAt: -1 });   // 🔥 force index use
+      .hint({ createdAt: -1 });
 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 /* -------- GET SINGLE PRODUCT (HEAVY) -------- */

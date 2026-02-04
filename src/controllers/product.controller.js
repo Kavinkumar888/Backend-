@@ -1,4 +1,6 @@
 const Product = require("../models/product.model");
+
+/* ---------------- GET PRODUCTS ---------------- */
 exports.getProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 25;
@@ -27,40 +29,64 @@ exports.getProducts = async (req, res) => {
 
     res.json(products);
   } catch (err) {
+    console.error("GET PRODUCTS ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+/* ---------------- CREATE PRODUCT ---------------- */
 exports.createProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
-    const specs = JSON.parse(req.body.specifications || "{}");
+
+    // ✅ SAFE JSON PARSE
+    let specs = {};
+    try {
+      specs = req.body.specifications
+        ? JSON.parse(req.body.specifications)
+        : {};
+    } catch {
+      specs = {};
+    }
 
     const product = await Product.create({
-      name: req.body.name,
-      price: req.body.price,
-      mainCategory: req.body.mainCategory,
-      subCategory: req.body.subCategory,
-      nestedCategory: req.body.nestedCategory,
+      name: req.body.name || "",
+      price: Number(req.body.price) || 0, // ✅ important
+      mainCategory: req.body.mainCategory || "",
+      subCategory: req.body.subCategory || "",
+      nestedCategory: req.body.nestedCategory || "",
       specifications: specs,
       image: imagePath,
     });
 
     res.status(201).json(product);
   } catch (err) {
+    console.error("CREATE PRODUCT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+/* ---------------- UPDATE PRODUCT ---------------- */
 exports.updateProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const specs = JSON.parse(req.body.specifications || "{}");
+
+    // ✅ SAFE JSON PARSE
+    let specs = {};
+    try {
+      specs = req.body.specifications
+        ? JSON.parse(req.body.specifications)
+        : {};
+    } catch {
+      specs = {};
+    }
 
     const updateData = {
-      name: req.body.name,
-      price: req.body.price,
-      mainCategory: req.body.mainCategory,
-      subCategory: req.body.subCategory,
-      nestedCategory: req.body.nestedCategory,
+      name: req.body.name || "",
+      price: Number(req.body.price) || 0, // ✅ important
+      mainCategory: req.body.mainCategory || "",
+      subCategory: req.body.subCategory || "",
+      nestedCategory: req.body.nestedCategory || "",
       specifications: specs,
     };
 
@@ -74,22 +100,29 @@ exports.updateProduct = async (req, res) => {
 
     res.json(updated);
   } catch (err) {
+    console.error("UPDATE PRODUCT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+/* ---------------- GET BY ID ---------------- */
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).lean();
     res.json(product);
   } catch (err) {
+    console.error("GET BY ID ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+/* ---------------- DELETE ---------------- */
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: "Product deleted" });
   } catch (err) {
+    console.error("DELETE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };

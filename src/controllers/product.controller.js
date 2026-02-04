@@ -24,7 +24,6 @@ exports.getProducts = async (req, res) => {
     )
       .sort({ createdAt: -1 })
       .limit(limit)
-      .hint({ createdAt: -1 })
       .lean();
 
     res.json(products);

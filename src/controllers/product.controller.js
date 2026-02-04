@@ -11,8 +11,18 @@ exports.getProducts = async (req, res) => {
       query.createdAt = { $lt: new Date(lastCreatedAt) };
     }
 
-    // ❌ NO projection here
-    const products = await Product.find(query)
+    const products = await Product.find(
+      query,
+      {
+        name: 1,
+        price: 1,
+        image: 1,
+        mainCategory: 1,
+        subCategory: 1,
+        nestedCategory: 1,
+        specifications: 1,
+      }
+    )
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();

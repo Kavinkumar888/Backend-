@@ -1,4 +1,4 @@
-const Product = require("../models/Product.model");
+const Product = require("../models/Product");
 
 /* ---------------- GET PRODUCTS ---------------- */
 exports.getProducts = async (req, res) => {
@@ -11,17 +11,8 @@ exports.getProducts = async (req, res) => {
       query.createdAt = { $lt: new Date(lastCreatedAt) };
     }
 
-    const products = await Product.find(
-      query,
-      {
-        name: 1,
-        price: 1,
-        image: 1,
-        mainCategory: 1,
-        subCategory: 1,
-        nestedCategory: 1,
-      }
-    )
+    // ❌ NO projection here
+    const products = await Product.find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();

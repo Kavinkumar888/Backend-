@@ -1,10 +1,4 @@
 const Product = require("../models/product.model");
-
-/* -------- GET PRODUCTS (FAST LIST) -------- */
-/* -------- GET PRODUCTS (REAL PAGINATION) -------- */
-
-
-
 exports.getProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 25;
@@ -36,9 +30,6 @@ exports.getProducts = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
-/* -------- CREATE PRODUCT -------- */
 exports.createProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
@@ -59,8 +50,6 @@ exports.createProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-/* -------- UPDATE PRODUCT -------- */
 exports.updateProduct = async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -96,9 +85,6 @@ exports.getProductById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
-/* -------- DELETE PRODUCT -------- */
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);

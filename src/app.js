@@ -1,23 +1,15 @@
-import express from "express";
-import cors from "cors";
-import path from "path";
-import compression from "compression";
-import { fileURLToPath } from "url";
-import productRoutes from "./routes/product.routes.js";
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const compression = require("compression");
+const productRoutes = require("./routes/product.routes");
 
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/* 🔥 VERY IMPORTANT — BODY PARSER FIRST */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-/* 🔥 GZIP COMPRESSION (huge speed) */
 app.use(compression());
 
-/* CORS */
 app.use(
   cors({
     origin: [
@@ -29,15 +21,13 @@ app.use(
   })
 );
 
-/* STATIC UPLOADS */
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+/* ✅ STATIC UPLOADS — CORRECT */
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/* ROUTES */
 app.use("/api/products", productRoutes);
 
-/* TEST */
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+  res.send("Backend running");
 });
 
-export default app;
+module.exports = app;

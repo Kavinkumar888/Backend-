@@ -24,7 +24,7 @@ app.use(
 /* ✅ STATIC UPLOADS — CORRECT */
 app.use(
   "/uploads",
-  express.static(path.join(__dirname, "src/uploads"))
+  express.static(path.join(__dirname, "uploads"))
 );
 
 

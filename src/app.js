@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const compression = require("compression");
 const productRoutes = require("./routes/product.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 const app = express();
 
@@ -22,9 +23,9 @@ app.use(
 );
 
 /* ✅ STATIC UPLOADS — CORRECT */
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
+app.use("/api/payment", paymentRoutes);
 app.use("/api/products", productRoutes);
-
 app.get("/", (req, res) => {
   res.send("Backend running");
 });
